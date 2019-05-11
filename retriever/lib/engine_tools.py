@@ -75,6 +75,13 @@ def name_matches(scripts, arg):
         if arg == script.name.lower():
             return [script]
 
+    from retriever.lib.scripts import get_script_upstream
+
+    read_script = get_script_upstream(arg)
+
+    if read_script is not None:
+        return [read_script]
+
     for script in scripts:
         script_match_ratio = difflib.SequenceMatcher(None, script.name, arg).ratio()
         if script_match_ratio > .53:
@@ -315,26 +322,6 @@ def file_2list(input_file):
     for line in input_obj.readlines():
         abs_list.append(line.strip())
     return abs_list
-
-
-def get_script_version():
-    """This function gets the version number of the scripts and returns them in array form."""
-    from retriever.lib.scripts import SCRIPT_LIST
-
-    modules = SCRIPT_LIST()
-    scripts = []
-    for module in modules:
-        if module.public:
-            if os.path.isfile('.'.join(module._file.split('.')[:-1]) + '.json') and module.version:
-                module_name = module._name + '.json'
-                scripts.append(','.join([module_name, str(module.version)]))
-            elif os.path.isfile('.'.join(module._file.split('.')[:-1]) + '.py') and \
-                    not os.path.isfile('.'.join(module._file.split('.')[:-1]) + '.json'):
-                module_name = module._name + '.py'
-                scripts.append(','.join([module_name, str(module.version)]))
-
-    scripts = sorted(scripts, key=str.lower)
-    return scripts
 
 
 def set_proxy():

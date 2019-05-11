@@ -136,9 +136,7 @@ if current_platform != "windows":
 
 try:
     from retriever.compile import compile
-    from retriever.lib.repository import check_for_updates
 
-    check_for_updates()
     compile()
 except:
     pass
