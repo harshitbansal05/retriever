@@ -29,12 +29,6 @@ def main():
         # otherwise, parse them
         args = parser.parse_args()
 
-        if args.command not in ['reset', 'update'] \
-        and not os.path.isdir(SCRIPT_SEARCH_PATHS[1]) \
-        and not [f for f in os.listdir(SCRIPT_SEARCH_PATHS[-1])
-            if os.path.exists(SCRIPT_SEARCH_PATHS[-1])]:
-                check_for_updates()
-                reload_scripts()
         script_list = SCRIPT_LIST()
 
         if args.command == "install" and not args.engine:
@@ -109,12 +103,15 @@ def main():
             # scripts should never be empty because check_for_updates is run on SCRIPT_LIST init
             if not (args.l or args.k or isinstance(args.v, list)):
                 all_scripts = dataset_names()
-                print("Available datasets : {}\n".format(len(all_scripts)))
                 from retriever import lscolumns
 
-                lscolumns.printls(all_scripts)
+                print("Available offline datasets : {}\n".format(len(all_scripts['offline'])))
+                lscolumns.printls(all_scripts['offline'])
+                print("Available online datasets : {}\n".format(len(all_scripts['online'])))
+                lscolumns.printls(all_scripts['online'])
 
             elif isinstance(args.v, list):
+                online_scripts = []
                 if args.v:
                     try:
                         all_scripts = [get_script(dataset) for dataset in args.v]
@@ -122,8 +119,12 @@ def main():
                         all_scripts = []
                         print("Dataset(s) is not found.")
                 else:
-                    all_scripts = datasets()
+                    scripts = datasets()
+                    all_scripts = scripts['offline']
+                    online_scripts = scripts['online']
                 count = 1
+                if not args.v:
+                    print("Offline datasets : {}\n".format(len(all_scripts)))
                 for script in all_scripts:
                     print(
                         "{count}. {title}\n {name}\n"
@@ -140,7 +141,17 @@ def main():
                         )
                     )
                     count += 1
-
+                count = 1
+                if not args.v:
+                    print("Online datasets : {}\n".format(len(online_scripts)))
+                for script in online_scripts:
+                    print(
+                        "{count}. {name}".format(
+                            count=count,
+                            name=script
+                        )
+                    )
+                    count += 1
             else:
                 param_licenses = args.l if args.l else None
                 keywords = args.k if args.k else None
@@ -150,9 +161,9 @@ def main():
                 if not searched_scripts:
                     print("No available datasets found")
                 else:
-                    print("Available datasets : {}\n".format(len(searched_scripts)))
+                    print("Available offline datasets : {}\n".format(len(searched_scripts['offline'])))
                     count = 1
-                    for script in searched_scripts:
+                    for script in searched_scripts['offline']:
                         print(
                             "{count}. {title}\n{name}\n"
                             "{keywords}\n{licenses}\n".format(
@@ -161,6 +172,16 @@ def main():
                                 name=script.name,
                                 keywords=script.keywords,
                                 licenses=str(script.licenses[0]['name']),
+                            )
+                        )
+                        count += 1
+                    print("Available online datasets : {}\n".format(len(searched_scripts['online'])))
+                    count = 1
+                    for script in searched_scripts['online']:
+                        print(
+                            "{count}. {name}".format(
+                                count=count,
+                                name=script
                             )
                         )
                         count += 1

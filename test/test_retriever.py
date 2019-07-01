@@ -172,27 +172,33 @@ def test_database_name():
 def test_datasets():
     """Check if datasets lookup includes a known value"""
     datasets = rt.datasets(keywords=['mammals'])
-    dataset_names = [dataset.name for dataset in datasets]
+    dataset_names = [dataset.name for dataset in datasets['offline']]
+    dataset_names.extend(datasets['online'])
     assert 'mammal-masses' in dataset_names
 
 
 def test_datasets_keywords():
     """Check if datasets lookup on keyword includes a known value"""
     datasets = rt.datasets(keywords=['mammals'])
-    dataset_names = [dataset.name for dataset in datasets]
+    dataset_names = [dataset.name for dataset in datasets['offline']]
+    dataset_names.extend(datasets['online'])
     assert 'mammal-masses' in dataset_names
 
 
 def test_datasets_licenses():
     """Check if datasets lookup on license includes a known value"""
     datasets = rt.datasets(licenses=['CC0-1.0'])
-    dataset_names = [dataset.name for dataset in datasets]
+    dataset_names = [dataset.name for dataset in datasets['offline']]
+    dataset_names.extend(datasets['online'])
     assert 'amniote-life-hist' in dataset_names
 
 
 def test_dataset_names():
     """Check if dataset names lookup includes a known value"""
-    assert 'mammal-masses' in rt.dataset_names()
+    datasets = rt.dataset_names()
+    dataset_names = datasets['offline']
+    dataset_names.extend(datasets['online'])
+    assert 'mammal-masses' in dataset_names
 
 
 def test_drop_statement():
@@ -681,13 +687,13 @@ def test_reset_retriever(tmpdir):
     pwd_name = os.getcwd()
     workdir = tmpdir.mkdtemp()
     workdir.chdir()
-    dataset = random.choice(rt.dataset_names())
+    dataset = random.choice(rt.dataset_names()['offline'])
     rt.reset_retriever(dataset)
     rt.reload_scripts()
-    assert dataset not in rt.dataset_names()
-    rt.check_for_updates()
+    assert dataset not in rt.dataset_names()['offline']
+    rt.get_script_upstream(dataset)
     rt.reload_scripts()
-    assert dataset in rt.dataset_names()
+    assert dataset in rt.dataset_names()['offline']
     os.chdir(pwd_name)
 
 

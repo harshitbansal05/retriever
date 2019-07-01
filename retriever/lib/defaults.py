@@ -33,6 +33,13 @@ RETRIEVER_SCRIPTS = [
 "iris.json",
 "predicts.py"
 ]
+RETRIEVER_DATASETS = [
+"acton-lake",
+"amniote-life-hist",
+"bioclim",
+"iris",
+"predicts"
+]
 
 # Create default data directory
 DATA_DIR = '.'
